@@ -15,3 +15,7 @@ __pycache__/
 # Artefacts générés (régénérés à chaque run)
 artifacts/*
 !artifacts/.gitkeep
+
+# MLflow tracking
+mlruns/
+mlflow.db
