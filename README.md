@@ -42,4 +42,9 @@ notebooks/       # exploration
 ```
 
 ## Rôle des outils (Git / MLflow / DVC)
-_À compléter à l'étape 12._
+
+| Outil  | Rôle principal | Question à laquelle il répond |
+|--------|-----------------|-------------------------------|
+| Git    | Versionner le code et les métadonnées du projet | Quelle version du code est utilisée ? |
+| MLflow | Suivre les runs, paramètres, métriques et artefacts | Que s'est-il passé pendant cette exécution ? |
+| DVC    | Suivre les données ou artefacts hors logique Git | Quelle version de la donnée est associée au projet ? |
