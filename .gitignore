@@ -1,0 +1,17 @@
+# Environnements virtuels
+venv/
+.venv/
+
+# Caches Python
+__pycache__/
+*.pyc
+
+# Config locale
+.env
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Artefacts générés (régénérés à chaque run)
+artifacts/*
+!artifacts/.gitkeep
