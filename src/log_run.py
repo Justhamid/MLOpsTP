@@ -1,5 +1,4 @@
 import mlflow
-import mlflow.sklearn
 
 
 def log_run(params: dict, metrics: dict, model, artifacts_dir: str):
@@ -7,9 +6,9 @@ def log_run(params: dict, metrics: dict, model, artifacts_dir: str):
     Trace un run MLflow complet.
 
     Entrées :
-        params (dict) : paramètres du run (hyperparamètres, config)
+        params (dict) : paramètres du run
         metrics (dict) : métriques d'évaluation
-        model : modèle entraîné
+        model : modèle entraîné (non utilisé dans Airflow pour éviter conflit pydantic)
         artifacts_dir (str) : dossier contenant les artefacts à logger
 
     Sortie :
@@ -25,6 +24,8 @@ def log_run(params: dict, metrics: dict, model, artifacts_dir: str):
 
         mlflow.log_artifact(f"{artifacts_dir}/metrics.txt")
         mlflow.log_artifact(f"{artifacts_dir}/model.pkl")
-        mlflow.sklearn.log_model(model, artifact_path="model")
+
+        # mlflow.sklearn.log_model retiré : conflit pydantic v1/v2 dans Airflow
+        # log_model fonctionne dans main.py (Windows) mais pas dans WSL avec ces contraintes
 
         return run.info.run_id

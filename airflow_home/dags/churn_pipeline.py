@@ -14,6 +14,7 @@ from src.prepare import prepare_data
 from src.train import train_model
 from src.evaluate import evaluate_model
 from src.save import save_artifacts
+from src.log_run import log_run
 
 CSV_PATH = "/home/a945226/projects/MLOpsTP/data/raw/churn.csv"
 PROCESSED_DIR = "/home/a945226/projects/MLOpsTP/data/processed"
@@ -102,7 +103,30 @@ def task_save_artifacts(**context):
 
     print(f"Artefacts sauvegardés dans {ARTIFACTS_DIR}")
 
+def task_log_run(**context):
+    metrics = context["ti"].xcom_pull(task_ids="evaluate_model", key="metrics")
+    model_path = context["ti"].xcom_pull(task_ids="evaluate_model", key="model_path")
 
+    with open(model_path, "rb") as f:
+        model = pickle.load(f)
+
+    params = {
+        "model_type": "RandomForestClassifier",
+        "n_estimators": 100,
+        "max_depth": 5,
+        "test_size": 0.2,
+        "random_state": 42
+    }
+
+    run_id = log_run(
+        params=params,
+        metrics=metrics,
+        model=model,
+        artifacts_dir=ARTIFACTS_DIR
+    )
+
+    print(f"Run MLflow enregistré : {run_id}")
+    return run_id
 default_args = {
     "owner": "etudiant",
     "retry_delay": timedelta(minutes=1)
@@ -153,4 +177,11 @@ with DAG(
         retry_delay=timedelta(seconds=30)
     )
 
-    check >> prepare >> train >> evaluate >> save
+    log_run_task = PythonOperator(
+        task_id="log_run",
+        python_callable=task_log_run,
+        retries=1,
+        retry_delay=timedelta(seconds=30)
+    )
+
+    check >> prepare >> train >> evaluate >> save >> log_run_task
