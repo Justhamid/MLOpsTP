@@ -24,3 +24,7 @@ mlflow.db
 airflow_home/logs/
 airflow_home/airflow.db
 airflow_home/webserver_config.py
+
+# Logs API
+logs/*.log
+logs/drift_reports/

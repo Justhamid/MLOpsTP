@@ -1,5 +1,6 @@
 import os
 import pickle
+import json
 
 from .utils import save_metrics
 
@@ -27,6 +28,11 @@ def save_artifacts(model, metrics, output_dir: str):
     with open(model_path, "wb") as f:
         pickle.dump(model, f)
 
+    # Sauvegarde feature_columns.json
+    if hasattr(model, 'feature_names_in_'):
+        feature_columns = model.feature_names_in_.tolist()
+        with open(os.path.join(output_dir, "feature_columns.json"), "w", encoding="utf-8") as f:
+            json.dump(feature_columns, f, indent=2)
     save_metrics(metrics, metrics_path)
 
     if not os.path.exists(model_path):
