@@ -48,3 +48,50 @@ notebooks/       # exploration
 | Git    | Versionner le code et les métadonnées du projet | Quelle version du code est utilisée ? |
 | MLflow | Suivre les runs, paramètres, métriques et artefacts | Que s'est-il passé pendant cette exécution ? |
 | DVC    | Suivre les données ou artefacts hors logique Git | Quelle version de la donnée est associée au projet ? |
+
+## Pipeline
+
+### Structure
+Le pipeline est découpé en 4 étapes dans `src/` :
+- `prepare.py` : chargement et préparation des données
+- `train.py` : entraînement du modèle
+- `evaluate.py` : évaluation sur le jeu de test
+- `save.py` : sauvegarde des artefacts sur disque
+
+Lancer le pipeline manuellement (depuis la racine, venv activé) :
+```bash
+python main.py
+```
+
+### Orchestration Airflow (WSL uniquement)
+
+#### Installation
+```bash
+# Dans WSL, depuis la racine du projet
+python3.11 -m venv .venv
+source .venv/bin/activate
+export AIRFLOW_HOME=$(pwd)/airflow_home
+pip install "apache-airflow==2.9.3" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.9.3/constraints-3.11.txt"
+airflow db migrate
+airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com
+```
+
+#### Lancer Airflow
+```bash
+# Terminal 1 : scheduler
+source .venv/bin/activate && export AIRFLOW_HOME=$(pwd)/airflow_home
+airflow scheduler
+
+# Terminal 2 : webserver
+source .venv/bin/activate && export AIRFLOW_HOME=$(pwd)/airflow_home
+airflow webserver --port 8080
+```
+
+#### Déclencher le DAG
+Ouvrir http://localhost:8080, se connecter (admin/admin), dépausser `churn_pipeline` et cliquer sur Trigger DAG.
+
+#### Contrôles intégrés
+- `check_data` : vérifie que `churn.csv` existe — lève `FileNotFoundError` si absent
+- `prepare_data` : vérifie que le dataset n'est pas vide et que la colonne cible existe
+- `save_artifacts` : vérifie que les fichiers ont bien été écrits sur disque
+- En cas d'échec d'une tâche, toutes les tâches suivantes sont bloquées automatiquement par Airflow
