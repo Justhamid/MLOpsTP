@@ -19,3 +19,8 @@ artifacts/*
 # MLflow tracking
 mlruns/
 mlflow.db
+
+# Airflow
+airflow_home/logs/
+airflow_home/airflow.db
+airflow_home/webserver_config.py
