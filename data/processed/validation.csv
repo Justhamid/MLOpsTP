@@ -1,0 +1,7 @@
+age,tenure_months,monthly_charges,support_calls,contract_type_One year,contract_type_Two year,payment_method_Credit card,payment_method_Electronic check,payment_method_Mailed check,internet_service_Fiber,churn
+31,6,88.5,5,False,False,False,True,False,True,1
+38,18,71.3,2,False,False,False,False,False,True,0
+50,42,51.7,0,False,True,True,False,False,False,0
+22,1,95.0,7,False,False,False,True,False,True,1
+47,28,59.8,1,True,False,True,False,False,False,0
+48,30,58.4,1,True,False,False,False,True,False,0

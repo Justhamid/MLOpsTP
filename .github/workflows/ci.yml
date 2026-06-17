@@ -1,0 +1,64 @@
+name: CI Pipeline ML
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Configurer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest httpx2
+
+      - name: Réentraîner le modèle (artefacts non versionnés dans Git)
+        run: |
+          python main.py
+
+      - name: Vérifier que les artefacts existent
+        run: |
+          test -f artifacts/model.pkl || (echo "Modèle manquant" && exit 1)
+          test -f artifacts/feature_columns.json || (echo "Colonnes manquantes" && exit 1)
+
+      - name: Créer le jeu de validation
+        run: |
+          python -c "
+          import pandas as pd
+          from src.prepare import prepare_data
+          import os
+
+          os.makedirs('data/processed', exist_ok=True)
+
+          X_train, X_test, y_train, y_test = prepare_data(
+              csv_path='data/raw/churn.csv',
+              target_column='churn'
+          )
+
+          df_val = X_test.copy()
+          df_val['churn'] = y_test.values
+          df_val.to_csv('data/processed/validation.csv', index=False)
+          print('validation.csv créé :', len(df_val), 'lignes')
+          "
+
+      - name: Lancer les tests
+        run: pytest tests/ -v
+
+      - name: Vérifier que l'API démarre
+        run: |
+          uvicorn app:app --port 8000 &
+          sleep 5
+          curl -f http://localhost:8000/health || exit 1.
