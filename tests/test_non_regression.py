@@ -3,7 +3,7 @@ import json
 import pandas as pd
 from sklearn.metrics import accuracy_score
 
-ACCURACY_THRESHOLD = 1.1
+ACCURACY_THRESHOLD = 0.75
 
 
 def test_model_accuracy_above_threshold():
