@@ -216,3 +216,34 @@ Le rapport Evidently compare la distribution des données d'entraînement (réf�
 - des visualisations de distribution côte à côte
 
 Un score de dérive > 0.5 sur une variable signale que sa distribution actuelle s'éloigne significativement de ce que le modèle a vu à l'entraînement.
+
+## CI/CD
+
+### Intégration continue (CI)
+
+Les vérifications automatisées tournent avec **GitHub Actions** à chaque push sur `main`.
+
+**Workflow `.github/workflows/ci.yml` :**
+- Installe Python 3.11 et les dépendances
+- Réentraîne le modèle depuis les données
+- Vérifie que les artefacts sont produits
+- Lance les 18 tests pytest (pipeline, API, non-régression)
+- Vérifie que l'API démarre et répond sur `/health`
+
+**Lancer les tests en local :**
+```bash
+pytest tests/ -v
+```
+
+**Le workflow se déclenche :**
+- À chaque push sur `main` ou `develop`
+- À chaque pull request vers `main`
+
+### Ce qui relèverait du déploiement continu (CD)
+
+Le CD n'est pas encore implémenté mais voici ce qui serait ajouté :
+
+- **Publier l'image Docker** de l'API sur un registry (Docker Hub, ECR) après validation des tests
+- **Déployer l'API** sur un environnement de staging automatiquement après un run vert
+- **Enregistrer le modèle** dans le MLflow Model Registry avec le tag `staging` après réentraînement validé
+- **Déclencher un redéploiement** automatique en production après promotion manuelle depuis staging
