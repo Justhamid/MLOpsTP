@@ -12,9 +12,13 @@ __pycache__/
 # Notebooks
 .ipynb_checkpoints/
 
-# Artefacts générés (régénérés à chaque run)
+# Artefacts générés
 artifacts/*
 !artifacts/.gitkeep
+!artifacts/feature_columns.json
+!artifacts/reference_sample.csv
+!artifacts/model.pkl
+!artifacts/metrics.txt
 
 # MLflow tracking
 mlruns/

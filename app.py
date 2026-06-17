@@ -29,10 +29,19 @@ logger = logging.getLogger("churn_api")
 # ============================================================
 # CHARGEMENT DU MODÈLE DEPUIS LE MODEL REGISTRY
 # ============================================================
+# Dans app.py — remplace le chargement du modèle par :
 mlflow.set_tracking_uri("sqlite:///mlflow.db")
-logger.info("Chargement du modèle depuis le MLflow Model Registry...")
-model = mlflow.sklearn.load_model("models:/churn-classifier@latest-cindy")
-logger.info(f"Modèle chargé : {type(model).__name__}")
+logger.info("Chargement du modèle...")
+
+try:
+    model = mlflow.sklearn.load_model("models:/churn-classifier@latest-cindy")
+    logger.info(f"Modèle chargé depuis le Registry : {type(model).__name__}")
+except Exception as e:
+    logger.warning(f"Registry indisponible ({e}) — chargement depuis pickle local")
+    import pickle
+    with open("artifacts/model.pkl", "rb") as f:
+        model = pickle.load(f)
+    logger.info(f"Modèle chargé depuis pickle : {type(model).__name__}")
 
 # Chargement des colonnes
 with open("artifacts/feature_columns.json", "r", encoding="utf-8") as f:
